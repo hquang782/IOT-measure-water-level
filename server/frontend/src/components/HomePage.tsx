@@ -34,7 +34,7 @@ export const HomePage = () => {
         window.scrollTo(0, document.body.scrollHeight);
         console.log('ok');
       });
-
+      
       hasRunEffect.current = true;
       return () => {
         if (socket) {
@@ -56,71 +56,72 @@ export const HomePage = () => {
     setMessage(e.target.value);
   };
   return (
-    <div>
-     
-        <div className='dialog-container'>
-          <div className='dialog-content'>
-            {/* Nội dung dialog */}
-            <ul style={{ listStyleType: 'none', margin: 0, padding: 0 }}>
-              {chat.map((msg, index) => (
-                <li
-                  key={index}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    background: index % 2 === 0 ? '#efefef' : 'none',
-                  }}
-                >
-                  {msg}
-                </li>
-              ))}
-            </ul>
-            <form
-              onSubmit={sendMessage}
-              style={{
-                background: 'rgba(0, 0, 0, 0.15)',
-                padding: '0.25rem',
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                display: 'flex',
-                height: '3rem',
-                boxSizing: 'border-box',
-                backdropFilter: 'blur(10px)',
-              }}
-            >
-              <input
-                type='text'
-                id='input'
-                value={message}
-                onChange={handleInputChange}
-                style={{
-                  border: 'none',
-                  padding: '0 1rem',
-                  flexGrow: 1,
-                  borderRadius: '2rem',
-                  margin: '0.25rem',
-                  outline: 'none',
-                }}
-              />
-              <button
-                type='submit'
-                style={{
-                  background: '#333',
-                  border: 'none',
-                  padding: '0 1rem',
-                  margin: '0.25rem',
-                  borderRadius: '3px',
-                  outline: 'none',
-                  color: '#fff',
-                }}
-              >
-                Send
-              </button>
-            </form>
-          </div>
-        </div>
-   
-    </div>
+    <>
+    HomePage
+    </>
+    // <div> 
+    //     <div className='dialog-container'>
+    //       <div className='dialog-content'>
+    //         {/* Nội dung dialog */}
+    //         <ul style={{ listStyleType: 'none', margin: 0, padding: 0 }}>
+    //           {chat.map((msg, index) => (
+    //             <li
+    //               key={index}
+    //               style={{
+    //                 padding: '0.5rem 1rem',
+    //                 background: index % 2 === 0 ? '#efefef' : 'none',
+    //               }}
+    //             >
+    //               {msg}
+    //             </li>
+    //           ))}
+    //         </ul>
+    //         <form
+    //           onSubmit={sendMessage}
+    //           style={{
+    //             background: 'rgba(0, 0, 0, 0.15)',
+    //             padding: '0.25rem',
+    //             position: 'fixed',
+    //             bottom: 0,
+    //             left: 0,
+    //             right: 0,
+    //             display: 'flex',
+    //             height: '3rem',
+    //             boxSizing: 'border-box',
+    //             backdropFilter: 'blur(10px)',
+    //           }}
+    //         >
+    //           <input
+    //             type='text'
+    //             id='input'
+    //             value={message}
+    //             onChange={handleInputChange}
+    //             style={{
+    //               border: 'none',
+    //               padding: '0 1rem',
+    //               flexGrow: 1,
+    //               borderRadius: '2rem',
+    //               margin: '0.25rem',
+    //               outline: 'none',
+    //             }}
+    //           />
+    //           <button
+    //             type='submit'
+    //             style={{
+    //               background: '#333',
+    //               border: 'none',
+    //               padding: '0 1rem',
+    //               margin: '0.25rem',
+    //               borderRadius: '3px',
+    //               outline: 'none',
+    //               color: '#fff',
+    //             }}
+    //           >
+    //             Send
+    //           </button>
+    //         </form>
+    //       </div>
+    //     </div> 
+    // </div>
   );
 };
