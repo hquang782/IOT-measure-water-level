@@ -1,9 +1,9 @@
 #include <WiFi.h>
 #include <SocketIoClient.h>
 
-const char *ssid = "YourSSID";
-const char *password = "YourPassword";
-const char *serverAddress = "YourServerAddress";
+const char *ssid = "KPQ";
+const char *password = "honcairoicho";
+const char *serverAddress = "192.168.0.10";
 
 SocketIoClient client;
 
@@ -21,7 +21,7 @@ void setup()
 
    Serial.println("Connected to WiFi network");
 
-   client.begin(serverAddress);
+   client.begin(serverAddress, 3000, "/?transport=websocket");
 
    // Sending data to the server without the event handler
    client.emit("iotData", "{\"address\": \"example_address\", \"high\": 123}");
