@@ -1,4 +1,6 @@
 import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -6,30 +8,39 @@ import {
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway()
-export class ChatGateway {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  private connectedClients: Map<string, Socket> = new Map();
+  deviceDataMap: Map<string, DeviceData> = new Map(); // Lưu trữ dữ liệu từng thiết bị
 
-  handleConnection(client: Socket) {
-    // Xử lý khi một client kết nối đến
-    const clientId = client.id;
-    this.connectedClients.set(clientId, client);
-    console.log(`Client connected: ${clientId}`);
+  handleConnection(client: any, ...args: any[]) {
+    console.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
-    // Xử lý khi một client ngắt kết nối
-    const clientId = client.id;
-    this.connectedClients.delete(clientId);
-    console.log(`Client disconnected: ${clientId}`);
+  handleDisconnect(client: any) {
+    console.log(`Client disconnected: ${client.id}`);
   }
 
-  @SubscribeMessage('sendMessage')
-  handleMessage(client: Socket, message: any) {
-    // Xử lý khi client gửi một tin nhắn
-    console.log(message);
-    this.server.emit('newMessage', { message: message, client: client.id });
+  @SubscribeMessage('iotData')
+  handleIotData(client: any, data: any) {
+    // Xử lý dữ liệu từ thiết bị IOT ở đây
+    console.log('Received data from client:', data);
+
+    // if (this.deviceDataMap.has(data.address)) {
+    //   // Nếu dữ liệu từ thiết bị đã tồn tại, cập nhật nó
+    //   this.deviceDataMap.set(data.address, data);
+    // } else {
+    //   // Nếu dữ liệu từ thiết bị chưa tồn tại, thêm dữ liệu mới vào deviceDataMap
+    //   this.deviceDataMap.set(data.address, data);
+    // }
+
+    // // Gửi dữ liệu tới tất cả client đang kết nối (hoặc chỉ tới client cần thiết)
+    // this.server.emit('deviceData', Array.from(this.deviceDataMap.values()));
   }
+}
+
+interface DeviceData {
+  address: string;
+  high: number;
 }

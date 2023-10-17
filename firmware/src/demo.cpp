@@ -1,69 +1,34 @@
-// #include <WiFi.h>
-// #include <ArduinoWebsockets.h>
+#include <WiFi.h>
+#include <SocketIoClient.h>
 
-// #define TRIGGER_PIN 18
-// #define ECHO_PIN 5
-// float time_go = 0, distance = 0;
+const char *ssid = "YourSSID";
+const char *password = "YourPassword";
+const char *serverAddress = "YourServerAddress";
 
-// const char *ssid = "KPQ";
-// const char *password = "honcairoicho";
-// const char *serverHost = "192.168.0.10";
-// const int serverPort = 3000;
+SocketIoClient client;
 
-// WebsocketsClient webSocket;
+void setup()
+{
+   Serial.begin(115200);
+   delay(4000);
 
-// void setup()
-// {
-//    pinMode(TRIGGER_PIN, OUTPUT);
-//    pinMode(ECHO_PIN, INPUT);
-//    Serial.begin(115200);
+   WiFi.begin(ssid, password);
+   while (WiFi.status() != WL_CONNECTED)
+   {
+      delay(1000);
+      Serial.println("Connecting to WiFi...");
+   }
 
-//    connectToWiFi();
-//    connectToWebSocket();
-// }
+   Serial.println("Connected to WiFi network");
 
-// void loop()
-// {
-//    digitalWrite(TRIGGER_PIN, LOW);
-//    delayMicroseconds(2);
-//    digitalWrite(TRIGGER_PIN, HIGH);
-//    delayMicroseconds(10);
-//    digitalWrite(TRIGGER_PIN, LOW);
-//    delayMicroseconds(2);
-//    time_go = pulseIn(ECHO_PIN, HIGH);
+   client.begin(serverAddress);
 
-//    distance = time_go * 364.5 * 100 / 1000000 / 2;
-//    Serial.print("Khoang cach: ");
-//    Serial.print(distance);
-//    Serial.println("cm");
+   // Sending data to the server without the event handler
+   client.emit("iotData", "{\"address\": \"example_address\", \"high\": 123}");
+}
 
-//    sendDataToServer(distance);
-
-//    webSocket.loop();
-//    delay(1000);
-// }
-
-// void connectToWiFi()
-// {
-//    WiFi.begin(ssid, password);
-//    while (WiFi.status() != WL_CONNECTED)
-//    {
-//       delay(1000);
-//       Serial.println("Connecting to WiFi...");
-//    }
-//    Serial.println("Connected to WiFi");
-// }
-
-// void connectToWebSocket()
-// {
-//    webSocket.begin(serverHost, serverPort, "/");
-// }
-
-// void sendDataToServer(float data)
-// {
-//    if (webSocket.available())
-//    {
-//       String json = "{\"distance\": " + String(data) + "}";
-//       webSocket.send(json);
-//    }
-// }
+void loop()
+{
+   client.loop();
+   delay(1000); // Wait for 1 second
+}
