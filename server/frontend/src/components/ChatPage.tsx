@@ -47,7 +47,13 @@ export const ChatPage = () => {
   const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (socket && message !== '') {
-      socket.emit('sendMessage', message);
+      //test 
+       const deviceData: DeviceData = {
+         address: 'Nguyễn Trãi',
+         high: 30,
+       };
+      
+      socket.emit('iotData', deviceData);
       setMessage('');
       console.log(chat);
     }
@@ -123,3 +129,7 @@ export const ChatPage = () => {
   );
 };
  
+interface DeviceData {
+  address: string;
+  high: number;
+}

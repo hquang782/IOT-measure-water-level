@@ -23,20 +23,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('iotData')
-  handleIotData(client: any, data: any) {
+  handleIotData(client: any, data: DeviceData) {
     // Xử lý dữ liệu từ thiết bị IOT ở đây
     console.log('Received data from client:', data);
-
-    // if (this.deviceDataMap.has(data.address)) {
-    //   // Nếu dữ liệu từ thiết bị đã tồn tại, cập nhật nó
-    //   this.deviceDataMap.set(data.address, data);
-    // } else {
-    //   // Nếu dữ liệu từ thiết bị chưa tồn tại, thêm dữ liệu mới vào deviceDataMap
-    //   this.deviceDataMap.set(data.address, data);
-    // }
-
-    // // Gửi dữ liệu tới tất cả client đang kết nối (hoặc chỉ tới client cần thiết)
-    // this.server.emit('deviceData', Array.from(this.deviceDataMap.values()));
+    console.log(data.address);
+    if (this.deviceDataMap.has(data.address)) {
+      // Nếu dữ liệu từ thiết bị đã tồn tại, cập nhật nó
+      this.deviceDataMap.set(data.address, data);
+    } else {
+      // Nếu dữ liệu từ thiết bị chưa tồn tại, thêm dữ liệu mới vào deviceDataMap
+      this.deviceDataMap.set(data.address, data);
+    }
+    // Gửi dữ liệu tới tất cả client đang kết nối
+    this.server.emit('deviceData', Array.from(this.deviceDataMap.values()));
   }
 }
 
