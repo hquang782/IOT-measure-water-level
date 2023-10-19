@@ -1,15 +1,10 @@
 // #include <WiFi.h>
-// #include <SocketIoClient.h>
+// #include <SocketIOClient.h>
+// #include <ArduinoJson.h>
 
-<<<<<<< HEAD
-// const char *ssid = "YourSSID";
-// const char *password = "YourPassword";
-// const char *serverAddress = "YourServerAddress";
-=======
-const char *ssid = "KPQ";
-const char *password = "honcairoicho";
-const char *serverAddress = "192.168.0.10";
->>>>>>> e9cf2302d2085abe5b005b943fe109be51db52b9
+// const char *ssid = "KPQ";
+// const char *password = "honcairoicho";
+// const char *serverAddress = "192.168.0.10";
 
 // SocketIoClient client;
 
@@ -27,14 +22,21 @@ const char *serverAddress = "192.168.0.10";
 
 //    Serial.println("Connected to WiFi network");
 
-<<<<<<< HEAD
-//    client.begin(serverAddress);
-=======
-   client.begin(serverAddress, 3000, "/?transport=websocket");
->>>>>>> e9cf2302d2085abe5b005b943fe109be51db52b9
+//    client.begin(serverAddress, 3000, "/socket");
+
+//    // Create a JSON document
+//    StaticJsonDocument<200> doc;
+//    doc["address"] = "example_address";
+//    doc["high"] = 123;
+
+   
+//    // Serialize JSON document to a char array
+//    char output[200];
+//    serializeJson(doc, output);
 
 //    // Sending data to the server without the event handler
-//    client.emit("iotData", "{\"address\": \"example_address\", \"high\": 123}");
+//    client.emit("iotData", output);
+//    Serial.println("Data sent to server.");
 // }
 
 // void loop()

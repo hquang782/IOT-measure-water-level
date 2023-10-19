@@ -7,23 +7,26 @@ import {
   TableCell,
   TableBody,
 } from '@mui/material';
-import React, { useEffect, useRef, useState } from 'react';
+import MapComponent from '../Item/GetMap/MapCompent';
+import { useEffect, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
+import '../style/home.css';
 
 interface DeviceData {
-  address: string;
+  name: string;
   high: number;
+  lat: number;
+  lng: number;
 }
+const dataChange: any[] = [];
 
 export const HomePage = () => {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [chat, setChat] = useState<string[]>([]);
-  const [message, setMessage] = useState('');
-  const hasRunEffect = useRef(false);
   const [deviceData, setDeviceData] = useState<DeviceData[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const hasRunEffect = useRef(false);
   useEffect(() => {
     if (!hasRunEffect.current) {
-      const newSocket = io('ws://localhost:3000', {
+      const newSocket = io('ws://localhost:3000/socket', {
         transports: ['websocket'],
       });
       setSocket(newSocket);
@@ -41,8 +44,11 @@ export const HomePage = () => {
       });
 
       newSocket.on('deviceData', (dataFromServer: DeviceData[]) => {
+        
         console.log(dataFromServer);
         setDeviceData(dataFromServer);
+        dataChange.splice(0, dataChange.length);
+        dataChange.push(dataFromServer)
       });
 
       hasRunEffect.current = true;
@@ -56,24 +62,37 @@ export const HomePage = () => {
 
   return (
     <>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Vị trí</TableCell>
-              <TableCell>Mực nước</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {deviceData.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>{row.address}</TableCell>
-                <TableCell>{row.high}</TableCell>
+      <strong>Bảng thống kê vị trí và mực nước</strong>
+
+      <div className='table-container'>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow style={{ backgroundColor: 'black' }}>
+                <TableCell style={{ color: 'white' }}>Vị trí</TableCell>
+                <TableCell style={{ color: 'white' }}>Mực nước</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {deviceData.map((row, index) => (
+                <TableRow
+                key={index}
+                style={{
+                  backgroundColor: row.high > 50 ? '#FF3333' : row.high > 30 ? 'yellow' : '#33FF33',
+                }}
+              >
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.high}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+      <strong>Bản đồ mực nước</strong>
+      <MapComponent devicedata = {deviceData}  />
     </>
   );
 };
+
+export {dataChange};

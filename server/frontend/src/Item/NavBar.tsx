@@ -3,8 +3,8 @@ import { NavLink } from 'react-router-dom';
 export const NavBar = () => {
   return (
     <div>
-      <nav className='navbar navbar-expand navbar-dark bg-dark'>
-        <NavLink to={'/home'} className='navbar-brand'>
+      <nav className='navbar navbar-expand navbar-dark' style={{ backgroundColor: 'black' }} >
+        <NavLink to={'/'} className='navbar-brand'>
           Home
         </NavLink>
         <div className='navbar-nav ml-auto'>
