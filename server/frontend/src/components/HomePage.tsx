@@ -7,10 +7,10 @@ import {
   TableCell,
   TableBody,
 } from '@mui/material';
-import MapComponent from '../Item/GetMap/MapCompent';
 import { useEffect, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import '../style/home.css';
+import Test from '../Item/GetMap/test';
 
 interface DeviceData {
   name: string;
@@ -18,7 +18,7 @@ interface DeviceData {
   lat: number;
   lng: number;
 }
-const dataChange: any[] = [];
+
 
 export const HomePage = () => {
   const [deviceData, setDeviceData] = useState<DeviceData[]>([]);
@@ -47,8 +47,6 @@ export const HomePage = () => {
         
         console.log(dataFromServer);
         setDeviceData(dataFromServer);
-        dataChange.splice(0, dataChange.length);
-        dataChange.push(dataFromServer)
       });
 
       hasRunEffect.current = true;
@@ -68,9 +66,9 @@ export const HomePage = () => {
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
-              <TableRow style={{ backgroundColor: 'black' }}>
-                <TableCell style={{ color: 'white' }}>Vị trí</TableCell>
-                <TableCell style={{ color: 'white' }}>Mực nước</TableCell>
+              <TableRow style={{ backgroundColor: '#33CCFF' }}>
+                <TableCell style={{ color: 'black' }}>Vị trí</TableCell>
+                <TableCell style={{ color: 'black' }}>Mực nước</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -82,7 +80,7 @@ export const HomePage = () => {
                 }}
               >
                   <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.high}</TableCell>
+                  <TableCell>{row.high} cm</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -90,9 +88,11 @@ export const HomePage = () => {
         </TableContainer>
       </div>
       <strong>Bản đồ mực nước</strong>
-      <MapComponent devicedata = {deviceData}  />
+      {/* <MapComponent devicedata = {deviceData}  /> */}
+      {/* <MapWithMarker location={deviceData[0]}/> */}
+
+      <Test location={deviceData}/>
     </>
   );
 };
 
-export {dataChange};

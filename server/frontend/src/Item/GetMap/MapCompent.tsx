@@ -20,7 +20,7 @@ interface MapProps {
 
 const MapComponent: React.FC<MapProps> = ({ devicedata }) => {
   const [mapLoaded, setMapLoaded] = useState(false);
-  
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap&v=weekly`;
@@ -28,15 +28,15 @@ const MapComponent: React.FC<MapProps> = ({ devicedata }) => {
     window.initMap = initMap;
     document.head.appendChild(script);
 
-     // Hàm callback để kiểm tra việc tải xong bản đồ
-     script.onload = () => {
-      setMapLoaded(true);
-    };
+    // Hàm callback để kiểm tra việc tải xong bản đồ
+    // script.onload = () => {
+    //   setMapLoaded(true);
+    // };
 
     // Clean up để tránh memory leak
-    return () => {
-      script.onload = null;
-    };
+    // return () => {
+    //   script.onload = null;
+    // };
   }, []);
 
   useEffect(() => {
@@ -54,7 +54,6 @@ const MapComponent: React.FC<MapProps> = ({ devicedata }) => {
     setMarkers(map);
   };
 
-
   const setMarkers = (map: any) => {
     const image = {
       url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
@@ -70,7 +69,7 @@ const MapComponent: React.FC<MapProps> = ({ devicedata }) => {
 
     for (let i = 0; i < devicedata.length; i++) {
       const beach = devicedata[i];
-      console.log(beach)
+      console.log(beach);
       new window.google.maps.Marker({
         position: { lat: beach.lat, lng: beach.lng },
         map,
@@ -79,8 +78,6 @@ const MapComponent: React.FC<MapProps> = ({ devicedata }) => {
         title: beach.name + ": " + beach.high,
       });
     }
-    
-    
   };
 
   return (
