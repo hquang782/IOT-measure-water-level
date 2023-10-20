@@ -1,10 +1,33 @@
+
+.container{
+  background-color: #ddd;
+  max-width: 100% !important;
+}
+.PUBG nav{
+  box-shadow: 10px 10px 15px rgba(17, 79, 203, 0.1);
+}
+
+.search-container >div {
+  box-shadow: 10px 10px 15px rgba(17, 79, 203, 0.1);
+}
+.search-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+}
 .table-container {
+  box-shadow: 10px 10px 15px rgba(17, 79, 203, 0.1);
+  padding: 20px;
+  margin-top: 20px;
   margin: 0 100px;
   display: flex;
   justify-content: center;
 }
 
 .map-container {
+  box-shadow: 10px 10px 15px  rgba(17, 79, 203, 0.1);
+  height: 400px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   margin: 20px 100px;
