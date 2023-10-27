@@ -31,7 +31,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     if (!hasRunEffect.current) {
-      const newSocket = io("ws://localhost:3000/socket", {
+      const newSocket = io("ws://26.25.44.115:3000/socket", {
         transports: ["websocket"],
       });
       setSocket(newSocket);
@@ -61,7 +61,7 @@ export const HomePage = () => {
       };
     }
   }, [socket]);
-
+// fix top100Films sau khi nhận được data từ device -> deviceData
   const handleSearch = () => {
     console.log(searchValue);
     const deviceSearch = top100Films.find(

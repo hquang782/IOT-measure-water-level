@@ -9,7 +9,7 @@ export const ChatPage = () => {
 
   useEffect(() => {
     if (!hasRunEffect.current) {
-      const newSocket = io("ws://localhost:3000/socket", {
+      const newSocket = io("ws://26.25.44.115:3000/socket", {
         transports: ["websocket"],
       });
       setSocket(newSocket);
