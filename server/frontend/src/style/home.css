@@ -1,0 +1,70 @@
+
+.container{
+  background-color: #ddd;
+  max-width: 100% !important;
+}
+.PUBG nav{
+  box-shadow: 10px 10px 15px rgba(17, 79, 203, 0.1);
+}
+
+.search-container >div {
+  box-shadow: 10px 10px 15px rgba(17, 79, 203, 0.1);
+}
+.search-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+}
+.table-container {
+  box-shadow: 10px 10px 15px rgba(17, 79, 203, 0.1);
+  padding: 20px;
+  margin-top: 20px;
+  margin: 0 100px;
+  display: flex;
+  justify-content: center;
+}
+
+.map-container {
+  box-shadow: 10px 10px 15px  rgba(17, 79, 203, 0.1);
+  height: 400px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  margin: 20px 100px;
+}
+
+.table-container table {
+
+  width: 100%;
+  border-collapse: collapse;
+  
+}
+
+.table-container th,
+.table-container td {
+  border: 1px solid #fff7f7;
+  padding: 8px;
+  text-align: center;
+}
+
+.table-container th {
+  border: 0.5px solid #0b0a0a;
+  color: white;
+}
+
+.table-container tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.table-container tr:hover {
+  background-color: #ddd;
+}
+
+.map-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.map-container #map {
+  height: 400px;
+}
