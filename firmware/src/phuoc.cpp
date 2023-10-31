@@ -1,72 +1,134 @@
 #include <WiFi.h>
-#include <SocketIoClient.h>
+#include <PubSubClient.h>
+#include <Ultrasonic.h>
+#include <Arduino.h>
 
-/////////////////////////////////////
-////// USER DEFINED VARIABLES //////
-///////////////////////////////////
-/// WIFI Settings ///
+// khai báo chân cảm biến khoảng cách, sử dụng thư viện ultrasonic cho tiện việc tính khoảng cách
+Ultrasonic ultrasonic(13, 12); // trigger,echo
+
 const char *ssid = "KPQ";
 const char *password = "honcairoicho";
+const char *mqtt_server = "mqtt-dashboard.com";
 
-/// Socket.IO Settings ///
-char host[] = "192.168.0.10";                    // Socket.IO Server Address
-int port = 3000;                                 // Socket.IO Port Address
-char path[] = "/socket.io/?transport=websocket"; // Socket.IO Base Path
+WiFiClient espClient;
+PubSubClient client(espClient);
 
-/////////////////////////////////////
-////// ESP32 Socket.IO Client //////
-///////////////////////////////////
+unsigned long lastMsg = 0;
 
-SocketIoClient webSocket;
-WiFiClient client;
+// biến khoảng cách từ cảm biến đến phao
+float distance = 0;
+// biến độ cao của mực nước
+float water_level_high = 0;
+// biến độ cao thiết bị - giả lập
+float high_devide = 50;
 
-void socket_Connected(const char *payload, size_t length)
+void setup_wifi()
 {
-   Serial.println("Socket.IO Connected!");
-   char *message = "ahiihi";
-   webSocket.emit("status", message);
+    delay(10);
+    // Kết nối wifi
+    Serial.println();
+    Serial.print("Connecting to ");
+    Serial.println(ssid);
+
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+    }
+
+    randomSeed(micros());
+
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
 }
 
-void socket_event(const char *payload, size_t length)
+// setup publisher điều khiển thiết bị - phát triển sau
+//  sửa
+// void callback(char* topic,byte* payload, unsigned int length) {
+//   String incommingMessage = "";
+//   for (int i = 0; i < length; i++) incommingMessage += (char)payload[i];
+
+//   Serial.println("Message arrived [" + String(topic) + "]" + incommingMessage);
+
+//   if (strcmp(topic, "/PTIT_Test/p/light") == 0) {
+//     if (incommingMessage.equals("0") ) {
+
+//       digitalWrite(14, LOW);
+//     } else {
+
+//       digitalWrite(14, HIGH);
+//     }
+//   }
+// }
+
+void reconnect()
 {
-   Serial.print("got message: ");
-   Serial.println(payload);
+    // Loop until we're reconnected
+    while (!client.connected())
+    {
+        Serial.print("Attempting MQTT connection...");
+        String clientId = "ESP32Client-";
+        clientId += String(random(0xffff), HEX);
+        // Attempt to connect
+        if (client.connect(clientId.c_str()))
+        {
+            Serial.println("Connected to " + clientId);
+            // Once connected, publish an announcement...
+            client.publish("/WL_QP/p/mqtt", "QP_Test");
+            // ... and resubscribe
+
+            client.subscribe("/WL_QP/p/water_level");
+        }
+        else
+        {
+            Serial.print("failed, rc=");
+            Serial.print(client.state());
+            Serial.println(" try again in 5 seconds");
+            // Wait 5 seconds before retrying
+            delay(5000);
+        }
+    }
 }
-
-
 
 void setup()
 {
-   Serial.begin(115200);
-   delay(10);
-
-   // We start by connecting to a WiFi network
-
-   Serial.println();
-   Serial.println();
-   Serial.print("Connecting to ");
-   Serial.println(ssid);
-
-   WiFi.begin(ssid, password);
-
-   while (WiFi.status() != WL_CONNECTED)
-   {
-      delay(500);
-      Serial.print(".");
-   }
-
-   Serial.println("");
-   Serial.println("WiFi connected");
-   Serial.println("IP address: ");
-   Serial.println(WiFi.localIP());
-
-   // Setup 'on' listen events
-   webSocket.on("connect", socket_Connected);
-   webSocket.on("event", socket_event);
-   webSocket.begin(host, port);
+    Serial.begin(115200);
+    setup_wifi();
+    client.setServer(mqtt_server, 1883);
+    // callback phát triển sau
+    // client.setCallback(callback);
 }
 
 void loop()
 {
-   webSocket.loop();
+    if (!client.connected())
+    {
+        reconnect();
+    }
+    client.loop();
+
+    unsigned long now = millis();
+    if (now - lastMsg > 2000)
+    {
+        lastMsg = now;
+        // khoảng cách đến phao
+        distance = ultrasonic.read();
+
+        // chiều cao mực nước = chiều cao thiết bị - khoảng cách đo
+        water_level_high = high_devide - distance;
+
+        // send data to cloud
+        String water_high_send_data = String(water_level_high, 2);
+
+        String message = "Muc_nuoc_Nguyen_Trai : " + water_high_send_data;
+        client.publish("/WL_QP/p/water_level", message.c_str());
+
+        Serial.print("Water level high in Nguyen Trai sysout: ");
+        Serial.println(water_high_send_data);
+    }
 }
