@@ -31,7 +31,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     if (!hasRunEffect.current) {
-      const newSocket = io("ws://26.25.44.115:3000/socket", {
+      const newSocket = io("ws://192.168.0.10:3000", {
         transports: ["websocket"],
       });
       setSocket(newSocket);

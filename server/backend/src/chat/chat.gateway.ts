@@ -8,7 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 
-@WebSocketGateway({ namespace: '/socket' })
+@WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private chatService: ChatService){}
 
@@ -40,7 +40,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //==========v1=========
     // this.chatService.saveData(data.name, data.high,data.lat,data.lng);
     //=====================
-    this.server.emit('newMessage', data);
+    const data2: { name: string, status: string} = {name: 'Send data',status:'done'};
+    this.server.emit('newMessage', data2);
     // Gửi dữ liệu tới tất cả client đang kết nối
     // this.server.emit('deviceData', Array.from(this.deviceDataMap.values()));
     this.server.emit('deviceData', data);

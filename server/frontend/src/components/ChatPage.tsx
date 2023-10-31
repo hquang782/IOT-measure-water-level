@@ -9,26 +9,24 @@ export const ChatPage = () => {
 
   useEffect(() => {
     if (!hasRunEffect.current) {
-      const newSocket = io("ws://26.25.44.115:3000/socket", {
+      const newSocket = io("ws://192.168.0.10:3000", {
         transports: ["websocket"],
       });
       setSocket(newSocket);
 
       newSocket.on("connect", () => {
-        // Xử lý sự kiện khi kết nối tới máy chủ thành công
         console.log("connected");
       });
 
       console.log("init");
 
       newSocket.on("disconnect", () => {
-        // Xử lý sự kiện khi bị ngắt kết nối với máy chủ
         setSocket(null);
       });
 
-      newSocket.on("newMessage", (data: DeviceData) => {
+      newSocket.on("newMessage", (data: any) => {
         // Xử lý sự kiện khi nhận được tin nhắn mới từ máy
-        setChat((prevChat) => [...prevChat, data.name + ": " + data.high]);
+        setChat((prevChat) => [...prevChat, data.name + ": " + data.status]);
         console.log(chat);
         console.log(data);
         window.scrollTo(0, document.body.scrollHeight);
@@ -79,14 +77,6 @@ export const ChatPage = () => {
       setMessage(0);
     }
   };
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    const numericValue = parseInt(inputValue); // or parseFloat, depending on your needs
-
-    if (!isNaN(numericValue)) {
-      setMessage(numericValue);
-    }
-  };
   return (
     <div>
       <div className="dialog-container">
@@ -120,20 +110,6 @@ export const ChatPage = () => {
               backdropFilter: "blur(10px)",
             }}
           >
-            <input
-              type="text"
-              id="input"
-              value={message}
-              onChange={handleInputChange}
-              style={{
-                border: "none",
-                padding: "0 1rem",
-                flexGrow: 1,
-                borderRadius: "2rem",
-                margin: "0.25rem",
-                outline: "none",
-              }}
-            />
             <button
               type="submit"
               style={{
