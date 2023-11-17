@@ -20,6 +20,7 @@ interface DeviceData {
   high: number;
   lat: number;
   lng: number;
+  status: string;
 }
 
 export const HomePage = () => {
@@ -31,7 +32,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     if (!hasRunEffect.current) {
-      const newSocket = io("ws://192.168.0.10:3000", {
+      const newSocket = io("ws://localhost:3000", {
         transports: ["websocket"],
       });
       setSocket(newSocket);
@@ -64,7 +65,7 @@ export const HomePage = () => {
 // fix top100Films sau khi nhận được data từ device -> deviceData
   const handleSearch = () => {
     console.log(searchValue);
-    const deviceSearch = top100Films.find(
+    const deviceSearch = deviceData.find(
       (device) => device.name === searchValue
     );
     const resultArray = deviceSearch ? [deviceSearch] : [];
@@ -162,23 +163,27 @@ const top100Films: DeviceData[] = [
     high: 30,
     lat: 20.982378357449228,
     lng: 105.790345050698161,
+    status:"active",
   },
   {
     name: "Vũ Trọng Khánh",
     high: 34,
     lat: 20.980837544897252,
     lng: 105.78460836850482,
+    status:"active",
   },
   {
     name: "Nguyễn Khuyến",
     high: 53,
     lat: 20.978038766575796,
     lng: 105.78763012005066,
+    status:"active",
   },
   {
     name: "Ao Sen",
     high: 30,
     lat: 20.981939982625267,
     lng: 105.78847892629213,
+    status:"active",
   },
 ];

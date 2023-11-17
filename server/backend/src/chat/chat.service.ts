@@ -12,6 +12,7 @@ export class ChatService {
     high: number,
     lat: number,
     lng: number,
+    status: string,
   ): Promise<any> {
     const address = await this.addressService.findOne(name);
 
@@ -21,21 +22,23 @@ export class ChatService {
         high,
         lat,
         lng,
+        status,
       };
       const newAddress = await this.addressService.create(createAddressDto);
-      console.log(newAddress);
+      console.log('create'+newAddress);
     } else {
       const updateAddressDto: UpdateAddressDto = {
         name,
         high,
         lat,
         lng,
+        status,
       };
       const lastAddress = await this.addressService.update(
         address.id,
         updateAddressDto,
       );
-      console.log(lastAddress);
+      console.log('update'+lastAddress);
     }
   }
 }

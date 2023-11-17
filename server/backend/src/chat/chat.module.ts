@@ -6,6 +6,6 @@ import { AddressModule } from 'src/address/address.module';
 @Module({
   imports:[AddressModule],
   providers: [ChatGateway, ChatService],
-  exports: [ChatService],
+  exports: [ChatService,ChatGateway],
 })
 export class ChatModule {}

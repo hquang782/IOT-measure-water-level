@@ -37,7 +37,7 @@ export class AddressService {
       where: { id },
     });
     if (!updateAddress) {
-      throw new NotFoundException('address not found');
+      throw new NotFoundException('Address not found');
     }
     updateAddress.name = updateAddressDto.name;
     updateAddress.high = updateAddressDto.high;

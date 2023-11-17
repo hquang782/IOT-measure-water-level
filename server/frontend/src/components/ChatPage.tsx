@@ -6,10 +6,10 @@ export const ChatPage = () => {
   const [chat, setChat] = useState<string[]>([]);
   const [message, setMessage] = useState<number>(0);
   const hasRunEffect = useRef(false);
-
+// đổi localhost thành ip máy 
   useEffect(() => {
     if (!hasRunEffect.current) {
-      const newSocket = io("ws://192.168.0.10:3000", {
+      const newSocket = io("ws://localhost:3000", {
         transports: ["websocket"],
       });
       setSocket(newSocket);
@@ -52,24 +52,28 @@ export const ChatPage = () => {
           high: 30,
           lat: 20.982378357449228,
           lng: 105.790345050698161,
+          status:"active",
         },
         {
           name: "Vũ Trọng Khánh",
           high: 34,
           lat: 20.980837544897252,
           lng: 105.78460836850482,
+          status:"active",
         },
         {
           name: "Nguyễn Khuyến",
           high: 53,
           lat: 20.978038766575796,
           lng: 105.78763012005066,
+          status:"active",
         },
         {
           name: "Ao Sen",
           high: 30,
           lat: 20.981939982625267,
           lng: 105.78847892629213,
+          status:"active",
         },
       ];
 
@@ -136,4 +140,5 @@ interface DeviceData {
   high: number;
   lat: number;
   lng: number;
+  status: string;
 }

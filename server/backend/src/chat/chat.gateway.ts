@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 
+
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private chatService: ChatService){}
@@ -26,25 +27,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('iotData')
-  handleIotData(client: any, data: DeviceData[]) {
+  handleIotData(data: DeviceData) {//TODO: nhận data và xử lí 
     // Xử lý dữ liệu từ thiết bị IOT ở đây
     console.log('Received data from client:', data);
     // console.log(data.name);
-    // if (this.deviceDataMap.has(data.name)) {
+    if (this.deviceDataMap.has(data.name)) {
       // Nếu dữ liệu từ thiết bị đã tồn tại, cập nhật nó
-      // this.deviceDataMap.set(data.name, data);
-    // } else {
+      data.high=Math.round(data.high) //làm tròn dữ liệu 
+      this.deviceDataMap.set(data.name, data);
+    } else {
       // Nếu dữ liệu từ thiết bị chưa tồn tại, thêm dữ liệu mới vào deviceDataMap
-      // this.deviceDataMap.set(data.name, data);
-    // }
+      data.high=Math.round(data.high) //làm tròn dữ liệu 
+      this.deviceDataMap.set(data.name, data);
+    }
     //==========v1=========
     // this.chatService.saveData(data.name, data.high,data.lat,data.lng);
     //=====================
-    const data2: { name: string, status: string} = {name: 'Send data',status:'done'};
+    const data2: { name: string, status: string} = {name: 'Send data',status:data.name};
     this.server.emit('newMessage', data2);
     // Gửi dữ liệu tới tất cả client đang kết nối
-    // this.server.emit('deviceData', Array.from(this.deviceDataMap.values()));
-    this.server.emit('deviceData', data);
+    this.server.emit('deviceData', Array.from(this.deviceDataMap.values()));
+    console.log('emit done');
+    // this.server.emit('deviceData', data);
 
   }
 }
@@ -54,4 +58,5 @@ interface DeviceData {
   high: number;
   lat: number;
   lng: number;
+  status: string;
 }

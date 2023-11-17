@@ -12,4 +12,7 @@ export class CreateAddressDto {
 
   @ApiProperty()
   lng: number;
+
+  @ApiProperty()
+  status: string;
 }

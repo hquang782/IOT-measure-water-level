@@ -6,6 +6,7 @@ interface DeviceData {
   high: number;
   lat: number;
   lng: number;
+  status: string;
 }
 interface MapProps {
   location: DeviceData[];
