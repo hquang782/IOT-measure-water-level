@@ -8,14 +8,13 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 
-
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private chatService: ChatService){}
+  constructor(private chatService: ChatService) {}
 
   @WebSocketServer()
   server: Server;
- 
+
   deviceDataMap: Map<string, DeviceData> = new Map(); // Lưu trữ dữ liệu từng thiết bị
 
   handleConnection(client: any, ...args: any[]) {
@@ -27,29 +26,38 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('iotData')
-  handleIotData(data: DeviceData) {//TODO: nhận data và xử lí 
+  handleIotData(data: DeviceData) {
+    //TODO: nhận data và xử lí
     // Xử lý dữ liệu từ thiết bị IOT ở đây
     console.log('Received data from client:', data);
     // console.log(data.name);
-    if (this.deviceDataMap.has(data.name)) {
-      // Nếu dữ liệu từ thiết bị đã tồn tại, cập nhật nó
-      data.high=Math.round(data.high) //làm tròn dữ liệu 
-      this.deviceDataMap.set(data.name, data);
+    if (data.status == 'active') {
+      data.high = Math.round(data.high); //làm tròn dữ liệu
+      if (this.deviceDataMap.has(data.name)) {
+        // Nếu dữ liệu từ thiết bị đã tồn tại, cập nhật nó
+        this.deviceDataMap.set(data.name, data);
+      } else {
+        // Nếu dữ liệu từ thiết bị chưa tồn tại, thêm dữ liệu mới vào deviceDataMap
+        this.deviceDataMap.set(data.name, data);
+      }
     } else {
-      // Nếu dữ liệu từ thiết bị chưa tồn tại, thêm dữ liệu mới vào deviceDataMap
-      data.high=Math.round(data.high) //làm tròn dữ liệu 
-      this.deviceDataMap.set(data.name, data);
+      if (this.deviceDataMap.has(data.name)) {
+        this.deviceDataMap.delete(data.name);
+      }
     }
+
     //==========v1=========
-    // this.chatService.saveData(data.name, data.high,data.lat,data.lng);
+    this.chatService.saveData(data);
     //=====================
-    const data2: { name: string, status: string} = {name: 'Send data',status:data.name};
+    const data2: { name: string; status: string } = {
+      name: 'Send data',
+      status: data.name,
+    };
     this.server.emit('newMessage', data2);
     // Gửi dữ liệu tới tất cả client đang kết nối
     this.server.emit('deviceData', Array.from(this.deviceDataMap.values()));
     console.log('emit done');
-    // this.server.emit('deviceData', data);
-
+    
   }
 }
 

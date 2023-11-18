@@ -22,7 +22,7 @@ export class AuthService {
         sub: user.id,
         username: user.username,
         role: user.role,
-        exp_time: 60,// đơn vị giây
+        exp_time: 3600,// đơn vị giây
       };
       const access_token = await this.jwtService.signAsync(payload);
       return { message: 'Login successful!', access_token: access_token , data: payload};

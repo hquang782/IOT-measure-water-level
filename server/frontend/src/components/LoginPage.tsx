@@ -89,6 +89,8 @@ const LoginPage: React.FC = () => {
                   name="password"
                   type="password"
                   className="form-control"
+                  onFocus ={() => setMessage("")}
+                  onKeyPress={() => setMessage("")}
                 />
                 <ErrorMessage
                   name="password"
@@ -106,7 +108,7 @@ const LoginPage: React.FC = () => {
                   <span>Login</span>
                 </button>
               </div>
-              {message !== "" && message !== "Login successful" && (
+              {message !== "" && message !== "Login successful!" && (
                 <div className="form-group">
                   <div
                     className={"alert alert-danger"}

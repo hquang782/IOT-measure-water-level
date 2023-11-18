@@ -22,9 +22,9 @@ export class AddressController {
     return this.addressService.findOne(name);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAddressDto: UpdateAddressDto) {
-    return this.addressService.update(id, updateAddressDto);
+  @Patch(':name')
+  update(@Param('name') name: string, @Body() updateAddressDto: UpdateAddressDto) {
+    return this.addressService.update(name, updateAddressDto);
   }
 
   @Delete(':name')

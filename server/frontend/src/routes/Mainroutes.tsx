@@ -25,18 +25,18 @@ const Mainroutes = () => {
           element: <HomePage />,
         },
         {
-          path: "/admin",
-          element: currentUser ? <AdminPage /> : <Navigate to="/login" />,
-        },
-        {
           path: "/user",
           element: <ChatPage />,
         },
-        {
-          path: "/login",
-          element: currentUser ? <Navigate to='/admin' /> : <LoginPage />,
-        },
       ],
+    },
+    {
+      path: "/admin",
+      element: currentUser ? <AdminPage /> : <Navigate to="/login" />,
+    },
+    {
+      path: "/login",
+      element: currentUser ? <Navigate to='/admin' /> : <LoginPage />,
     },
     notFound,
   ];

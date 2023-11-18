@@ -21,8 +21,8 @@ const containerStyle = {
 function MyComponent({ location }: MapProps) {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
-    // googleMapsApiKey: "AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao",
+    // googleMapsApiKey: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
+    googleMapsApiKey: "AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao",
   });
   const center = { lat:location.length > 0 ? location[0].lat : 20.98049466365608,lng: location.length > 0 ? location[0].lng :105.78807860699418};
   

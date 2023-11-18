@@ -7,38 +7,26 @@ import { UpdateAddressDto } from 'src/address/dto/update-address.dto';
 export class ChatService {
   constructor(private addressService: AddressService) {}
 
-  async saveData(
-    name: string,
-    high: number,
-    lat: number,
-    lng: number,
-    status: string,
-  ): Promise<any> {
+  async saveData(data: deviceData): Promise<any> {
+    const { name, high, lat, lng, status } = data;
     const address = await this.addressService.findOne(name);
 
     if (!address) {
-      const createAddressDto: CreateAddressDto = {
-        name,
-        high,
-        lat,
-        lng,
-        status,
-      };
+      const createAddressDto: CreateAddressDto = { name, high, lat, lng, status };
       const newAddress = await this.addressService.create(createAddressDto);
-      console.log('create'+newAddress);
+      console.log('create '+ newAddress.name);
     } else {
-      const updateAddressDto: UpdateAddressDto = {
-        name,
-        high,
-        lat,
-        lng,
-        status,
-      };
-      const lastAddress = await this.addressService.update(
-        address.id,
-        updateAddressDto,
-      );
-      console.log('update'+lastAddress);
+      const updateAddressDto: UpdateAddressDto = { name, high, lat, lng, status };
+      const lastAddress = await this.addressService.update(address.id, updateAddressDto);
+      console.log('update '+ lastAddress.name);
     }
   }
+}
+
+interface deviceData {
+  name: string;
+  high: number;
+  lat: number;
+  lng: number;
+  status: string;
 }

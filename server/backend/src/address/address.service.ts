@@ -32,15 +32,19 @@ export class AddressService {
     return address;
   }
 
-  async update(id: string, updateAddressDto: UpdateAddressDto) {
+  async update(name: string, updateAddressDto: UpdateAddressDto) {
     const updateAddress = await this.addressRepository.findOne({
-      where: { id },
+      where: { name },
     });
     if (!updateAddress) {
       throw new NotFoundException('Address not found');
     }
     updateAddress.name = updateAddressDto.name;
     updateAddress.high = updateAddressDto.high;
+    updateAddress.lat = updateAddressDto.lat;
+    updateAddress.lng = updateAddressDto.lng;
+    updateAddress.status = updateAddressDto.status;
+    console.log(updateAddress);
     return await this.addressRepository.save(updateAddress);
   }
 

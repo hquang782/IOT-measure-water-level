@@ -32,7 +32,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     if (!hasRunEffect.current) {
-      const newSocket = io("ws://localhost:3000", {
+      const newSocket = io("ws://26.25.44.115:3000", {
         transports: ["websocket"],
       });
       setSocket(newSocket);
@@ -79,7 +79,7 @@ export const HomePage = () => {
           freeSolo
           id="free-solo-2-demo"
           disableClearable
-          options={top100Films.map((option) => option.name)}
+          options={deviceData.map((option) => option.name)}
           onChange={(e, option) => {
             setSearchValue(option);
           }}

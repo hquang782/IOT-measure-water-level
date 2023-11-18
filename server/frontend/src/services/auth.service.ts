@@ -6,7 +6,7 @@ import {
 } from '../util/CheckToken';
 import { newRequest } from '../util/configApiRequest';
 
-const API_URL = 'http://localhost:3000/auth/';
+const API_URL = 'http://26.25.44.115:3000/auth/';
 
 export const register = async (
   username: string,
