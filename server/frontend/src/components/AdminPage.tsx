@@ -49,6 +49,9 @@ export const AdminPage = () => {
       const mqttTopic = `/C_QP/p/controller_status_devide/${device.name}`;
       const mqttPayload = device.status;
       const response = await axios.post(MQTT_API_URL, { topic: mqttTopic, payload: mqttPayload });
+      //xóa khỏi home
+      const response2 = await axios.post(MQTT_API_URL, { topic: '/WL_QP/p/water_level', payload: JSON.stringify(device) });
+
       console.log(response.data);
     } catch (error) {
       console.error("Lỗi khi cập nhật trạng thái thiết bị:", error);
