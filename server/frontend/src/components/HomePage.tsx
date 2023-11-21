@@ -62,7 +62,7 @@ export const HomePage = () => {
       };
     }
   }, [socket]);
-// fix top100Films sau khi nhận được data từ device -> deviceData
+
   const handleSearch = () => {
     console.log(searchValue);
     const deviceSearch = deviceData.find(
@@ -133,7 +133,7 @@ export const HomePage = () => {
                   key={index}
                   style={{
                     backgroundColor:
-                      row.high > 50
+                      row.high > 40
                         ? "#FF3333"
                         : row.high > 30
                         ? "yellow"

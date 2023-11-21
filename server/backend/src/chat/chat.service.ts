@@ -17,7 +17,7 @@ export class ChatService {
       console.log('create '+ newAddress.name);
     } else {
       const updateAddressDto: UpdateAddressDto = { name, high, lat, lng, status };
-      const lastAddress = await this.addressService.update(address.id, updateAddressDto);
+      const lastAddress = await this.addressService.update(address.name, updateAddressDto);
       console.log('update '+ lastAddress.name);
     }
   }

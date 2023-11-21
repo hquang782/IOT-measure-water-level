@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableBody,
@@ -6,44 +6,77 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Switch,
   Box,
   Button,
+  Typography,
 } from "@mui/material";
-import { newRequest } from "../util/configApiRequest";
 import axios from "axios";
+import { newRequest } from "../util/configApiRequest";
 import { logout } from "../services/auth.service";
+import { Socket } from "socket.io-client";
 
+const API_BASE_URL = "http://26.25.44.115:3000";
+const ADDRESS_API_URL = `${API_BASE_URL}/address`;
+const MQTT_API_URL = `${API_BASE_URL}/mqtt/publish`;
 
 const devicesData: DeviceData[] = [
   { name: "Device 1", high: 0, lat: 0, lng: 0, status: "active" },
-
-  // ... add more devices as needed
 ];
 
 export const AdminPage = () => {
   const [devices, setDevices] = useState(devicesData);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const hasRunEffect = useRef(false);
+
+
   useEffect(() => {
-    // Fetch data from the API when the component mounts
     const fetchData = async () => {
       try {
-        const response = await newRequest("http://26.25.44.115:3000/address/", {
-          method: "GET",
-        }).then((data) => {
-          return data?.data;
-        });
-        setDevices(response);
+        const response = await newRequest(ADDRESS_API_URL, { method: "GET" });
+        setDevices(response?.data || []);
       } catch (error) {
-        console.error("Error fetching device data:", error);
+        console.error("Lỗi khi lấy dữ liệu thiết bị:", error);
       }
     };
 
     fetchData();
   }, []);
+
+  const updateDevice = async (device: DeviceData) => {
+    try {
+      await axios.patch(`${ADDRESS_API_URL}/${device.name}`, { ...device });
+      const mqttTopic = `/C_QP/p/controller_status_devide/${device.name}`;
+      const mqttPayload = device.status;
+      const response = await axios.post(MQTT_API_URL, { topic: mqttTopic, payload: mqttPayload });
+      console.log(response.data);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái thiết bị:", error);
+    }
+  };
+
+  const handleTurnOnAll = async () => {
+    try {
+      const updatedDevices = devices.map((device) => ({
+        ...device,
+        status: device.status === "inactive" ? "active" : device.status,
+      }));
+
+      setDevices(updatedDevices);
+
+      await Promise.all(
+        updatedDevices.map(async (device) => {
+          await updateDevice(device);
+        })
+      );
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái thiết bị:", error);
+    }
+  };
+
   const handleSwitchChange = async (name: string) => {
     try {
-      const updatedDevices = devices.map((device: DeviceData) =>
+      const updatedDevices = devices.map((device) =>
         device.name === name
           ? {
               ...device,
@@ -53,67 +86,51 @@ export const AdminPage = () => {
       );
 
       setDevices(updatedDevices);
-      const deviceChange: any = updatedDevices.find(
-        (device: DeviceData) => device.name === name
-      ); //để any cho hết lỗi
-      // Check if the device was found
+      const deviceChange = updatedDevices.find((device) => device.name === name);
+
       if (deviceChange) {
-        await axios.patch(`http://localhost:3000/address/${name}`, {
-          name: deviceChange.name,
-          high: deviceChange.high,
-          lat: deviceChange.lat,
-          lng: deviceChange.lng,
-          status: deviceChange.status,
-        });
-        //publish to device
-        const mqttTopic = `/quang/782/${deviceChange.name}`;
-        const mqttPayload = deviceChange.status;
-
-        const response = await axios.post(
-          "http://localhost:3000/mqtt/publish",
-          {
-            topic: mqttTopic,
-            payload: mqttPayload,
-          }
-        );
-
-        console.log(response.data);
+        await updateDevice(deviceChange);
       } else {
-        console.error("Device not found");
+        console.error("Thiết bị không được tìm thấy");
       }
     } catch (error) {
-      console.error("Error updating device status:", error);
+      console.error("Lỗi khi cập nhật trạng thái thiết bị:", error);
     }
   };
 
-  function handleLogout(): void {
+  const handleLogout = () => {
     logout();
-    window.location.href="/login";
-  }
+    window.location.href = "/login";
+  };
 
   return (
     <div>
       <div></div>
-      {/* Sidebar and other content */}
       <div>
-        {/* Toggle between device management and other sections in the sidebar */}
-        {/* ... */}
-
-        {/* Device Management Section */}
         <div>
-          <h2 style={{textAlign: 'center'}}>Device Management</h2>
+          <Typography variant="h2" align="center">
+            Quản Lý Thiết Bị
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleTurnOnAll}
+            style={{ position: "absolute", top: 0, right: 0, marginTop: "10px", marginRight: "10px" }}
+          >
+            Bật Tất Cả
+          </Button>
           <TableContainer component={Box}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>High</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Action</TableCell>
+                  <TableCell>Tên</TableCell>
+                  <TableCell>Độ Cao</TableCell>
+                  <TableCell>Trạng Thái</TableCell>
+                  <TableCell>Hành Động</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {devices.map((device: DeviceData) => (
+                {devices.map((device) => (
                   <TableRow key={device.name}>
                     <TableCell>{device.name}</TableCell>
                     <TableCell>{device.high}</TableCell>
@@ -132,9 +149,8 @@ export const AdminPage = () => {
           </TableContainer>
         </div>
         <div>
-          {/* Logout button */}
-          <Button variant="contained" color="primary" onClick={handleLogout} style={{ marginTop: '30px' }}>
-            Logout
+          <Button variant="contained" color="primary" onClick={handleLogout} style={{ marginTop: "30px" }}>
+            Đăng Xuất
           </Button>
         </div>
       </div>

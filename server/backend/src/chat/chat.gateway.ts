@@ -35,10 +35,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data.high = Math.round(data.high); //làm tròn dữ liệu
       if (this.deviceDataMap.has(data.name)) {
         // Nếu dữ liệu từ thiết bị đã tồn tại, cập nhật nó
-        this.deviceDataMap.set(data.name, data);
+        if (this.deviceDataMap.get(data.name).high != data.high) {
+          this.deviceDataMap.set(data.name, data);
+          this.chatService.saveData(data); //lưu thay đổi vào db
+        }
       } else {
         // Nếu dữ liệu từ thiết bị chưa tồn tại, thêm dữ liệu mới vào deviceDataMap
         this.deviceDataMap.set(data.name, data);
+        this.chatService.saveData(data);//lưu thay đổi vào db
       }
     } else {
       if (this.deviceDataMap.has(data.name)) {
@@ -46,9 +50,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
 
-    //==========v1=========
-    this.chatService.saveData(data);
-    //=====================
     const data2: { name: string; status: string } = {
       name: 'Send data',
       status: data.name,
@@ -57,7 +58,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Gửi dữ liệu tới tất cả client đang kết nối
     this.server.emit('deviceData', Array.from(this.deviceDataMap.values()));
     console.log('emit done');
-    
   }
 }
 

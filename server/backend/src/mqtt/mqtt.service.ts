@@ -1,13 +1,12 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { MqttClient, connect } from 'mqtt';
-import { debug, error, info } from 'ps-logger';
+import { error, info } from 'ps-logger';
 import { ChatGateway } from 'src/chat/chat.gateway';
 
 @Injectable()
 export class MqttService implements OnModuleInit {
   private mqttClient: MqttClient;
-  constructor(private readonly configService: ConfigService, private webGateway: ChatGateway) {}
+  constructor(private webGateway: ChatGateway) {}
   onModuleInit() {
     // const host = this.configService.get<string>('c715fb1b256c4e3f95b25d58503a71b6.s2.eu.hivemq.cloud')
     // const port = this.configService.get<string>('8884')
@@ -15,7 +14,6 @@ export class MqttService implements OnModuleInit {
 
     const connectUrl = `ws://broker.hivemq.com:8000/mqtt`;
     // const connectUrl = `mqtt://${host}:${port}`;
-    const topic = '/nodejs/mqtt/sp';
 
     this.mqttClient = connect(connectUrl, {
       clientId,
@@ -35,7 +33,7 @@ export class MqttService implements OnModuleInit {
       error('Error in connecting to CloudMQTT');
     });
 
-    this.mqttClient.subscribe('/quang/test');
+    this.mqttClient.subscribe('/WL_QP/p/water_level');
     this.mqttClient.on('message', (topic, payload) => {
       info(`Received message from ${topic}: ${payload}`);
       try {
