@@ -3,29 +3,40 @@
 #include <Ultrasonic.h>
 #include <Arduino.h>
 
+
 // khai báo chân cảm biến khoảng cách, sử dụng thư viện ultrasonic cho tiện việc tính khoảng cách
 Ultrasonic ultrasonic(13, 12); // trigger,echo
 
-const char *ssid = "KPQ";
-const char *password = "honcairoicho";
+const char *ssid = "VDP";
+const char *password = "12345678";
 const char *mqtt_server = "mqtt-dashboard.com";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+
+// topic setup
+// topic 1 - infor send form devide:   "/WL_QP/p/water_level"
+// topic 2 - controller status devide: "/C_QP/p/controller_status_devide/name"
+
+
+
+
 unsigned long lastMsg = 0;
 
-// biến khoảng cách từ cảm biến đến phao
+// khoảng cách 
 float distance = 0;
-// biến độ cao của mực nước
+// mực nước ngập
 float water_level_high = 0;
-// biến độ cao thiết bị - giả lập
+// chiều cao thiết bị
 float high_devide = 50;
+//  trạng thái
+String devideStatus = "active";
+bool publishWaterLevel = true;  // Biến flag cho phép/ngừng publish cho topic "/WL_QP/p/water_level"
 
 void setup_wifi()
 {
     delay(10);
-    // Kết nối wifi
     Serial.println();
     Serial.print("Connecting to ");
     Serial.println(ssid);
@@ -40,56 +51,77 @@ void setup_wifi()
     }
 
     randomSeed(micros());
-
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
 }
 
-// setup publisher điều khiển thiết bị - phát triển sau
-//  sửa
-// void callback(char* topic,byte* payload, unsigned int length) {
-//   String incommingMessage = "";
-//   for (int i = 0; i < length; i++) incommingMessage += (char)payload[i];
+// Nhận controller từ webserver
+void callback(char *topic, byte *payload, unsigned int length)
+{
+    String incomingMessage = "";
+    for (int i = 0; i < length; i++)
+        incomingMessage += (char)payload[i];
 
-//   Serial.println("Message arrived [" + String(topic) + "]" + incommingMessage);
+    Serial.println("Message arrived [" + String(topic) + "]" + incomingMessage);
 
-//   if (strcmp(topic, "/PTIT_Test/p/light") == 0) {
-//     if (incommingMessage.equals("0") ) {
+    if (strcmp(topic, "/C_QP/p/controller_status_devide/Nguyen Trai") == 0)
+    {
+        Serial.println(incomingMessage);
+        if (incomingMessage.equals("active"))
+        {
+            devideStatus = "active";
+            publishWaterLevel = true;  // Bật lại khả năng publish cho topic "/WL_QP/p/water_level"
+        }
+        else
+        {
+            devideStatus = "inactive";
+            publishWaterLevel = false;  // Tắt khả năng publish cho topic "/WL_QP/p/water_level"
+        }
+    }
+}
 
-//       digitalWrite(14, LOW);
-//     } else {
+void sendData()
+{
+    unsigned long now = millis();
+    if (now - lastMsg > 2000)
+    {
+        lastMsg = now;
+        distance = ultrasonic.read();
+        water_level_high = high_devide - distance;
 
-//       digitalWrite(14, HIGH);
-//     }
-//   }
-// }
+        if (publishWaterLevel)
+        {
+            String water_high_send_data = String(water_level_high, 2);
+            String message = "{\"name\":\"Nguyen Trai\",\"high\": " + water_high_send_data + ",\"lat\":20.982378357449228,\"lng\":105.79034505069816,\"status\": \"" + String(devideStatus) + "\"}";
+            client.publish("/WL_QP/p/water_level", message.c_str());
+
+            Serial.print("Water level high in Nguyen Trai sysout: ");
+            Serial.println(water_high_send_data);
+        }
+    }
+}
 
 void reconnect()
 {
-    // Loop until we're reconnected
     while (!client.connected())
     {
         Serial.print("Attempting MQTT connection...");
         String clientId = "ESP32Client-";
         clientId += String(random(0xffff), HEX);
-        // Attempt to connect
         if (client.connect(clientId.c_str()))
         {
             Serial.println("Connected to " + clientId);
-            // Once connected, publish an announcement...
             client.publish("/WL_QP/p/mqtt", "QP_Test");
-            // ... and resubscribe
-
             client.subscribe("/WL_QP/p/water_level");
+            client.subscribe("/C_QP/p/controller_status_devide/Nguyen Trai");
         }
         else
         {
             Serial.print("failed, rc=");
             Serial.print(client.state());
             Serial.println(" try again in 5 seconds");
-            // Wait 5 seconds before retrying
             delay(5000);
         }
     }
@@ -100,8 +132,7 @@ void setup()
     Serial.begin(115200);
     setup_wifi();
     client.setServer(mqtt_server, 1883);
-    // callback phát triển sau
-    // client.setCallback(callback);
+    client.setCallback(callback);
 }
 
 void loop()
@@ -111,24 +142,14 @@ void loop()
         reconnect();
     }
     client.loop();
-
-    unsigned long now = millis();
-    if (now - lastMsg > 2000)
+    if (devideStatus.equals("active"))
     {
-        lastMsg = now;
-        // khoảng cách đến phao
-        distance = ultrasonic.read();
-
-        // chiều cao mực nước = chiều cao thiết bị - khoảng cách đo
-        water_level_high = high_devide - distance;
-
-        // send data to cloud
-        String water_high_send_data = String(water_level_high, 2);
-
-        String message = "Muc_nuoc_Nguyen_Trai : " + water_high_send_data;
-        client.publish("/WL_QP/p/water_level", message.c_str());
-
-        Serial.print("Water level high in Nguyen Trai sysout: ");
-        Serial.println(water_high_send_data);
+        sendData();
+    }
+    else
+    {
+        // Thiết lập cho trạng thái không publish khi thiết bị tắt
+        publishWaterLevel = false;
     }
 }
+
