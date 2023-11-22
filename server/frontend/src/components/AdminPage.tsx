@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -10,11 +10,11 @@ import {
   Box,
   Button,
   Typography,
+  TextField,
 } from "@mui/material";
 import axios from "axios";
 import { newRequest } from "../util/configApiRequest";
 import { logout } from "../services/auth.service";
-import { Socket } from "socket.io-client";
 
 const API_BASE_URL = "http://26.25.44.115:3000";
 const ADDRESS_API_URL = `${API_BASE_URL}/address`;
@@ -26,9 +26,10 @@ const devicesData: DeviceData[] = [
 
 export const AdminPage = () => {
   const [devices, setDevices] = useState(devicesData);
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const hasRunEffect = useRef(false);
-
+  const [editingRow, setEditingRow] = useState<string | null>(null);
+  const [editedValues, setEditedValues] = useState<{
+    [key: string]: number;
+  }>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,16 +42,23 @@ export const AdminPage = () => {
     };
 
     fetchData();
-  }, []);
+  }, [editingRow]);
 
-  const updateDevice = async (device: DeviceData) => {
+  const updateDevice = async (device: DeviceData) => {// firmware xử lý json trả về
     try {
       await axios.patch(`${ADDRESS_API_URL}/${device.name}`, { ...device });
       const mqttTopic = `/C_QP/p/controller_status_devide/${device.name}`;
-      const mqttPayload = device.status;
-      const response = await axios.post(MQTT_API_URL, { topic: mqttTopic, payload: mqttPayload });
+      // const mqttPayload = device.status;
+      const mqttPayload = JSON.stringify(device);
+      const response = await axios.post(MQTT_API_URL, {
+        topic: mqttTopic,
+        payload: mqttPayload,
+      });
       //xóa khỏi home
-      const response2 = await axios.post(MQTT_API_URL, { topic: '/WL_QP/p/water_level', payload: JSON.stringify(device) });
+      await axios.post(MQTT_API_URL, {
+        topic: "/WL_QP/p/water_level",
+        payload: JSON.stringify(device),
+      });
 
       console.log(response.data);
     } catch (error) {
@@ -89,7 +97,9 @@ export const AdminPage = () => {
       );
 
       setDevices(updatedDevices);
-      const deviceChange = updatedDevices.find((device) => device.name === name);
+      const deviceChange = updatedDevices.find(
+        (device) => device.name === name
+      );
 
       if (deviceChange) {
         await updateDevice(deviceChange);
@@ -98,6 +108,54 @@ export const AdminPage = () => {
       }
     } catch (error) {
       console.error("Lỗi khi cập nhật trạng thái thiết bị:", error);
+    }
+  };
+  const handleEditRow = (name: string) => {
+    setEditingRow(name);
+    setEditedValues((prevValues) => ({
+      ...prevValues,
+      [`${name}_lat`]: devices.find((device) => device.name === name)?.lat || 0,
+      [`${name}_lng`]: devices.find((device) => device.name === name)?.lng || 0,
+    }));
+  };
+
+  const handleSaveChanges = async (name: string) => {
+    try {
+      // Lấy giá trị lat và lng từ editedValues
+      const updatedLat = editedValues[`${name}_lat`];
+      const updatedLng = editedValues[`${name}_lng`];
+      
+      // Perform saving logic to the database with updatedLat and updatedLng
+      // Assuming you have a function updateDeviceLocation to handle the API call
+      await updateDeviceLocation(name, updatedLat, updatedLng);
+
+      // Đặt lại trạng thái chỉnh sửa
+      setEditingRow(null);
+      setEditedValues({});
+    } catch (error) {
+      console.error("Lỗi khi lưu thay đổi:", error);
+    }
+  };
+
+  // Hàm này xử lý việc cập nhật vị trí của thiết bị thông qua cuộc gọi API
+  const updateDeviceLocation = async (
+    name: string,
+    lat: number,
+    lng: number
+  ) => {
+    try {
+      // Thực hiện cuộc gọi API hoặc cập nhật cơ sở dữ liệu tại đây
+      // Sử dụng axios hoặc fetch để gửi yêu cầu đến API
+      const response = await axios.patch(`${ADDRESS_API_URL}/${name}`, {
+        lat: lat,
+        lng: lng,
+      });
+      
+      // Xuất kết quả từ cuộc gọi API nếu cần
+      console.log(response.data);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật vị trí thiết bị:", error);
+      throw error; // Đặt lại lỗi để có thể xử lý ở các lớp gọi cha nếu cần
     }
   };
 
@@ -118,7 +176,13 @@ export const AdminPage = () => {
             variant="contained"
             color="primary"
             onClick={handleTurnOnAll}
-            style={{ position: "absolute", top: 0, right: 0, marginTop: "10px", marginRight: "10px" }}
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              marginTop: "10px",
+              marginRight: "10px",
+            }}
           >
             Bật Tất Cả
           </Button>
@@ -128,6 +192,8 @@ export const AdminPage = () => {
                 <TableRow>
                   <TableCell>Tên</TableCell>
                   <TableCell>Độ Cao</TableCell>
+                  <TableCell>lat</TableCell>
+                  <TableCell>lng</TableCell>
                   <TableCell>Trạng Thái</TableCell>
                   <TableCell>Hành Động</TableCell>
                 </TableRow>
@@ -137,13 +203,66 @@ export const AdminPage = () => {
                   <TableRow key={device.name}>
                     <TableCell>{device.name}</TableCell>
                     <TableCell>{device.high}</TableCell>
+                    <TableCell>
+                      {editingRow === device.name ? (
+                        <TextField
+                          value={editedValues[`${device.name}_lat`]}
+                          onChange={(e) =>
+                            setEditedValues(
+                              (prevValues) =>
+                                ({
+                                  ...prevValues,
+                                  [`${device.name}_lat`]: e.target.value,
+                                } as { [key: string]: number })
+                            )
+                          }
+                        />
+                      ) : (
+                        device.lat
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingRow === device.name ? (
+                        <TextField
+                        value={editedValues[`${device.name}_lng`]}
+                        onChange={(e) =>
+                          setEditedValues(
+                            (prevValues) =>
+                              ({
+                                ...prevValues,
+                                [`${device.name}_lng`]: e.target.value,
+                              } as { [key: string]: number })
+                          )
+                        }
+                        />
+                      ) : (
+                        device.lng
+                      )}
+                    </TableCell>
                     <TableCell>{device.status}</TableCell>
                     <TableCell>
-                      <Switch
-                        checked={device.status === "active"}
-                        onChange={() => handleSwitchChange(device.name)}
-                        color="primary"
-                      />
+                      {editingRow === device.name ? (
+                        <Button
+                          color="primary"
+                          onClick={() => handleSaveChanges(device.name)}
+                        >
+                          Lưu
+                        </Button>
+                      ) : (
+                        <div>
+                          <Switch
+                            checked={device.status === "active"}
+                            onChange={() => handleSwitchChange(device.name)}
+                            color="primary"
+                          />
+                          <Button
+                            color="primary"
+                            onClick={() => handleEditRow(device.name)}
+                          >
+                            Chỉnh Sửa
+                          </Button>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -152,7 +271,12 @@ export const AdminPage = () => {
           </TableContainer>
         </div>
         <div>
-          <Button variant="contained" color="primary" onClick={handleLogout} style={{ marginTop: "30px" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleLogout}
+            style={{ marginTop: "30px" }}
+          >
             Đăng Xuất
           </Button>
         </div>
