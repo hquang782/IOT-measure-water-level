@@ -82,7 +82,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 }
 
-void sendData()
+void sendData()//để không phải xử lý nhiều thì xóa lat và lng là được 
 {
     unsigned long now = millis();
     if (now - lastMsg > 2000)
@@ -94,7 +94,7 @@ void sendData()
         if (publishWaterLevel)
         {
             String water_high_send_data = String(water_level_high, 2);
-            String message = "{\"name\":\"Nguyen Trai\",\"high\": " + water_high_send_data + ",\"lat\":20.982378357449228,\"lng\":105.79034505069816,\"status\": \"" + String(devideStatus) + "\"}";
+            String message = "{\"name\":\"Nguyen Trai\",\"high\": " + water_high_send_data + String(devideStatus) + "\"}";
             client.publish("/WL_QP/p/water_level", message.c_str());
 
             Serial.print("Water level high in Nguyen Trai sysout: ");

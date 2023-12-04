@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Table,
   TableBody,
@@ -44,12 +45,14 @@ export const AdminPage = () => {
     fetchData();
   }, [editingRow]);
 
-  const updateDevice = async (device: DeviceData) => {// firmware xử lý json trả về
+  const updateDevice = async (device: DeviceData) => {
+    // firmware xử lý json trả về
     try {
       await axios.patch(`${ADDRESS_API_URL}/${device.name}`, { ...device });
       const mqttTopic = `/C_QP/p/controller_status_devide/${device.name}`;
       // const mqttPayload = device.status;
-      const mqttPayload = JSON.stringify(device);
+      const devicev2: DeviceData = device;
+      const mqttPayload = JSON.stringify(devicev2);
       const response = await axios.post(MQTT_API_URL, {
         topic: mqttTopic,
         payload: mqttPayload,
@@ -65,7 +68,7 @@ export const AdminPage = () => {
       console.error("Lỗi khi cập nhật trạng thái thiết bị:", error);
     }
   };
-
+  // start process switch button
   const handleTurnOnAll = async () => {
     try {
       const updatedDevices = devices.map((device) => ({
@@ -110,6 +113,8 @@ export const AdminPage = () => {
       console.error("Lỗi khi cập nhật trạng thái thiết bị:", error);
     }
   };
+  //end proccess switch button
+  //start change location
   const handleEditRow = (name: string) => {
     setEditingRow(name);
     setEditedValues((prevValues) => ({
@@ -124,11 +129,7 @@ export const AdminPage = () => {
       // Lấy giá trị lat và lng từ editedValues
       const updatedLat = editedValues[`${name}_lat`];
       const updatedLng = editedValues[`${name}_lng`];
-      
-      // Perform saving logic to the database with updatedLat and updatedLng
-      // Assuming you have a function updateDeviceLocation to handle the API call
       await updateDeviceLocation(name, updatedLat, updatedLng);
-
       // Đặt lại trạng thái chỉnh sửa
       setEditingRow(null);
       setEditedValues({});
@@ -150,12 +151,29 @@ export const AdminPage = () => {
         lat: lat,
         lng: lng,
       });
-      
+
       // Xuất kết quả từ cuộc gọi API nếu cần
       console.log(response.data);
     } catch (error) {
       console.error("Lỗi khi cập nhật vị trí thiết bị:", error);
       throw error; // Đặt lại lỗi để có thể xử lý ở các lớp gọi cha nếu cần
+    }
+  };
+
+  const handleDeleteRow = async (deviceName: string) => {
+    try {
+      // Thực hiện xóa thiết bị khỏi cơ sở dữ liệu (thay thế bằng phương thức thích hợp)
+      // Ví dụ:
+      handleSwitchChange(deviceName);
+      await axios.delete(`${ADDRESS_API_URL}/${deviceName}`);
+      // Sau khi xóa thành công, cập nhật danh sách thiết bị (devices) mà không bao gồm thiết bị đã xóa
+      setDevices((prevDevices) =>
+        prevDevices.filter((device) => device.name !== deviceName)
+      );
+
+      // Thêm các bước xóa khỏi database tùy thuộc vào loại cơ sở dữ liệu và API bạn đang sử dụng
+    } catch (error) {
+      console.error("Lỗi khi xóa thiết bị:", error);
     }
   };
 
@@ -224,16 +242,16 @@ export const AdminPage = () => {
                     <TableCell>
                       {editingRow === device.name ? (
                         <TextField
-                        value={editedValues[`${device.name}_lng`]}
-                        onChange={(e) =>
-                          setEditedValues(
-                            (prevValues) =>
-                              ({
-                                ...prevValues,
-                                [`${device.name}_lng`]: e.target.value,
-                              } as { [key: string]: number })
-                          )
-                        }
+                          value={editedValues[`${device.name}_lng`]}
+                          onChange={(e) =>
+                            setEditedValues(
+                              (prevValues) =>
+                                ({
+                                  ...prevValues,
+                                  [`${device.name}_lng`]: e.target.value,
+                                } as { [key: string]: number })
+                            )
+                          }
                         />
                       ) : (
                         device.lng
@@ -261,6 +279,11 @@ export const AdminPage = () => {
                           >
                             Chỉnh Sửa
                           </Button>
+                          <Button
+                            variant="contained"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => handleDeleteRow(device.name)}
+                          ></Button>
                         </div>
                       )}
                     </TableCell>
