@@ -7,8 +7,8 @@
 // khai báo chân cảm biến khoảng cách, sử dụng thư viện ultrasonic cho tiện việc tính khoảng cách
 Ultrasonic ultrasonic(13, 12); // trigger,echo
 
-const char *ssid = "VDP";
-const char *password = "12345678";
+const char *ssid = "KPQ";
+const char *password = "honcairoicho";
 const char *mqtt_server = "mqtt-dashboard.com";
 
 WiFiClient espClient;
@@ -29,7 +29,7 @@ float distance = 0;
 // mực nước ngập
 float water_level_high = 0;
 // chiều cao thiết bị
-float high_devide = 50;
+float high_devide = 48;
 //  trạng thái
 String devideStatus = "active";
 bool publishWaterLevel = true;  // Biến flag cho phép/ngừng publish cho topic "/WL_QP/p/water_level"
@@ -82,7 +82,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 }
 
-void sendData()//để không phải xử lý nhiều thì xóa lat và lng là được 
+void sendData()
 {
     unsigned long now = millis();
     if (now - lastMsg > 2000)
@@ -94,7 +94,7 @@ void sendData()//để không phải xử lý nhiều thì xóa lat và lng là 
         if (publishWaterLevel)
         {
             String water_high_send_data = String(water_level_high, 2);
-            String message = "{\"name\":\"Nguyen Trai\",\"high\": " + water_high_send_data + String(devideStatus) + "\"}";
+            String message = "{\"name\":\"Nguyen Trai\",\"high\": " + water_high_send_data +",\"status\": " +  "\"" +String(devideStatus) + "\"}";
             client.publish("/WL_QP/p/water_level", message.c_str());
 
             Serial.print("Water level high in Nguyen Trai sysout: ");

@@ -43,7 +43,7 @@ export class MqttService implements OnModuleInit {
       } catch (error) {
         // Xử lý lỗi nếu chuỗi không phải là JSON hợp lệ
         console.error(`Error parsing JSON: ${error}`);
-        console.log(`Original payload: ${payload}`);
+        // console.log(`Original payload: ${payload}`);
       }
     });
   }

@@ -48,11 +48,12 @@ export const AdminPage = () => {
   const updateDevice = async (device: DeviceData) => {
     // firmware xử lý json trả về
     try {
+      //gửi status đến device
       await axios.patch(`${ADDRESS_API_URL}/${device.name}`, { ...device });
       const mqttTopic = `/C_QP/p/controller_status_devide/${device.name}`;
-      // const mqttPayload = device.status;
-      const devicev2: DeviceData = device;
-      const mqttPayload = JSON.stringify(devicev2);
+      const mqttPayload = device.status;
+      // const devicev2: DeviceData = device;
+      // const mqttPayload = JSON.stringify(devicev2);
       const response = await axios.post(MQTT_API_URL, {
         topic: mqttTopic,
         payload: mqttPayload,

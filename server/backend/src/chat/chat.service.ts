@@ -12,14 +12,34 @@ export class ChatService {
     const address = await this.addressService.findOne(name);
 
     if (!address) {
-      const createAddressDto: CreateAddressDto = { name, high, lat, lng, status };
+      const createAddressDto: CreateAddressDto = {
+        name,
+        high,
+        lat,
+        lng,
+        status,
+      };
       const newAddress = await this.addressService.create(createAddressDto);
-      console.log('create '+ newAddress.name);
+      console.log('create ' + newAddress.name);
     } else {
-      const updateAddressDto: UpdateAddressDto = { name, high, lat, lng, status };
-      const lastAddress = await this.addressService.update(address.name, updateAddressDto);
-      console.log('update '+ lastAddress.name);
+      const updateAddressDto: UpdateAddressDto = {
+        name,
+        high,
+        lat,
+        lng,
+        status,
+      };
+      const lastAddress = await this.addressService.update(
+        address.name,
+        updateAddressDto,
+      );
+      console.log('update ' + lastAddress.name);
     }
+  }
+  async getData(name: string): Promise<any> {
+    const address = await this.addressService.findOne(name);
+    if (address) return address;
+    else return null;
   }
 }
 

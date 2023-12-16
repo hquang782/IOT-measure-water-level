@@ -26,11 +26,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('iotData')
-  handleIotData(data: DeviceData) {
+  async handleIotData(data: DeviceData) {
     //TODO: nhận data và xử lí
     // Xử lý dữ liệu từ thiết bị IOT ở đây
     console.log('Received data from client:', data);
     // console.log(data.name);
+    const datafromdb: DeviceData = await this.chatService.getData(data.name);
+    data.lat = datafromdb.lat;
+    data.lng = datafromdb.lng;
     if (data.status == 'active') {
       data.high = Math.round(data.high); //làm tròn dữ liệu
       if (this.deviceDataMap.has(data.name)) {
@@ -57,7 +60,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('newMessage', data2);
     // Gửi dữ liệu tới tất cả client đang kết nối
     this.server.emit('deviceData', Array.from(this.deviceDataMap.values()));
-    console.log('emit done');
+    // console.log('emit done');
   }
 }
 
