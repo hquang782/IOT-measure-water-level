@@ -47,3 +47,13 @@ yarn start
 ```
 ### Sau khi cấp nguồn cho các Iot Device.
 Mở trình duyệt và truy cập http://localhost:8080/ để xem dự án đo mực nước.
+## Truy Cập Trang Quản Lý Thiết Bị
+
+Truy cập trang quản lý thiết bị tại [http://localhost:8080/admin](http://localhost:8080/admin).
+
+Tài khoản admin:
+
+- **Tên đăng nhập:** admin
+- **Mật khẩu:** 123456789
+
+Thanks for visiting!
