@@ -12,7 +12,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import "../style/home.css";
-import Test from "../Item/GetMap/test";
+import Test from "../Item/GetMap/Map";
 import SearchIcon from "@mui/icons-material/Search";
 
 interface DeviceData {
@@ -149,15 +149,12 @@ export const HomePage = () => {
         </TableContainer>
       </div>
       <strong>Bản đồ mực nước</strong>
-      {/* <MapComponent devicedata = {deviceData}  /> */}
-      {/* <MapWithMarker location={deviceData[0]}/> */}
-
       <Test location={deviceData} />
     </div>
   );
 };
 
-const top100Films: DeviceData[] = [
+const fakeData: DeviceData[] = [
   {
     name: "Nguyễn trãi",
     high: 30,

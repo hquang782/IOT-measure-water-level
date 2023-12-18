@@ -17,28 +17,28 @@ const containerStyle = {
   height: "400px",
 };
 
-
 function MyComponent({ location }: MapProps) {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
     // googleMapsApiKey: "AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao",
   });
-  const center = { lat:location.length > 0 ? location[0].lat : 20.98049466365608,lng: location.length > 0 ? location[0].lng :105.78807860699418};
-  
+  const center = {
+    lat: location.length > 0 ? location[0].lat : 20.98049466365608,
+    lng: location.length > 0 ? location[0].lng : 105.78807860699418,
+  };
+
   const [map, setMap] = React.useState(null);
 
   const onLoad = React.useCallback(function callback(map: any) {
-  
     const bounds = new window.google.maps.LatLngBounds(center);
     map.fitBounds(bounds);
     setMap(map);
   }, []);
 
-  const onUnmount = React.useCallback(function callback(map: any) {
+  const onUnmount = React.useCallback(function callback() {
     setMap(null);
   }, []);
-
 
   const image = {
     url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
@@ -62,7 +62,7 @@ function MyComponent({ location }: MapProps) {
               coords: [1, 1, 1, 20, 18, 20, 18, 1],
               type: "poly",
             }}
-            title={marker.name+": "+marker.high}
+            title={marker.name + ": " + marker.high}
           />
         ))}
       </GoogleMap>
